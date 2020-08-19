@@ -75,11 +75,4 @@ export class StatefulProducer<T> extends ReplaySubject<T> {
             this.unsubscribe()
         }
     }
-
-    /**
-     * @deprecated
-     */
-    close() {
-        this.stop()
-    }
 }

@@ -1,9 +1,9 @@
 {
   "name": "@typeheim/fire-rx",
   "version": "0.0.0-beta.19",
-  "description": "Firebase authentication library",
+  "description": "RxJS on steroids",
   "keywords": [
-    "fire-legion",
+    "rx-flow",
     "fire-rx",
     "rxjs",
     "promise",
@@ -19,9 +19,9 @@
     "email": "dima@kolodko.pro",
     "url": "https://github.com/prowwid"
   },
-  "homepage": "https://github.com/typeheim/fire-legion#readme",
+  "homepage": "https://github.com/typeheim/rx-flow#readme",
   "bugs": {
-    "url": "https://github.com/typeheim/fire-legion/issues"
+    "url": "https://github.com/typeheim/rx-flow/issues"
   },
   "license": "MIT",
   "main": "index.js",

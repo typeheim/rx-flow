@@ -40,13 +40,6 @@ export class ValueSubject<T> extends BehaviorSubject<T> {
         return this
     }
 
-    /**
-     * @deprecated
-     */
-    until(destroyEvent: Subscribable<any>) {
-        return this.emitUntil(destroyEvent)
-    }
-
     stop() {
         if (!this.isStopped) {
             this.complete()
@@ -68,13 +61,6 @@ export class ValueSubject<T> extends BehaviorSubject<T> {
         if (!this.closed) {
             this.unsubscribe()
         }
-    }
-
-    /**
-     * @deprecated
-     */
-    close() {
-        this.stop()
     }
 
     //

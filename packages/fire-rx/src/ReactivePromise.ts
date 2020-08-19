@@ -77,13 +77,6 @@ export class ReactivePromise<T> implements Subscribable<T> {
         return this
     }
 
-    /**
-     * @depreacted
-     */
-    until(destroyEvent: Subscribable<any>) {
-        return this.emitUntil(destroyEvent)
-    }
-
     //
     //
     // SUBJECT INTERFACE

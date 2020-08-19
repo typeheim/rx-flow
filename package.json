@@ -1,7 +1,7 @@
 {
-  "name": "@typeheim/monorepo",
-  "version": "0.0.0-beta.22",
-  "description": "DDD framework to work with Firebase",
+  "name": "@typeheim/rx-flow",
+  "version": "0.0.0-beta.20",
+  "description": "Collection of reactive libraries to ease your life",
   "main": "index.js",
   "private": true,
   "workspaces": [
@@ -12,24 +12,23 @@
     "run:bootstrap": "npx lerna bootstrap",
     "run:spec": "jest",
     "run:publish": "yarn clean:build && yarn install && yarn run:spec && yarn run:build && npx lerna publish && yarn clean:build && yarn install",
-    "serve:orm": "npx ts-node packages\\orm-on-fire\\dev-server.ts",
     "clean:build": "node prepare-build.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/typeheim/fire-legion.git"
+    "url": "git+https://github.com/typeheim/rx-flow.git"
   },
   "keywords": [
-    "firestore",
-    "firebase",
-    "orm",
-    "odm",
-    "ddd",
-    "repository",
-    "entity",
-    "model",
-    "collections",
-    "typescript",
+    "rx-flow",
+    "fire-rx",
+    "rxjs",
+    "promise",
+    "web",
+    "front-end",
+    "framework",
+    "angular",
+    "nest",
+    "back-end",
     "ts"
   ],
   "author": {
@@ -39,18 +38,13 @@
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/typeheim/fire-legion/issues"
+    "url": "https://github.com/typeheim/rx-flow/issues"
   },
-  "homepage": "https://github.com/typeheim/fire-legion#readme",
+  "homepage": "https://github.com/typeheim/rx-flow#readme",
   "devDependencies": {
     "@types/jest": "^25.2.1",
     "@types/node": "^13.13.0",
     "@types/reflect-metadata": "^0.1.0",
-    "express": "^4.17.1",
-    "firebase": "^7.14.4",
-    "firebase-admin": "^8.13.0",
-    "firebase-functions": "^3.7.0",
-    "firebase-tools": "^8.3.0",
     "jest": "^25.3.0",
     "lerna": "^3.20.2",
     "ts-node": "^8.10.1",

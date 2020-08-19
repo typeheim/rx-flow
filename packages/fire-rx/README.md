@@ -3,7 +3,6 @@
 RxJS on steroids. Adds memory safety and garbage collection  features to work with subjects and subscriptions. 
 Adds subjects that behave both like subjects and promises to support async/await. 
 
-
 ## StatefulSubject
 StatefulSubject acts as ReplaySubject and Promise so that you can use async/await operators on it as well as regular Subject methods. 
 Adds memory safety and garbage collection automatically calling unsubscribe on subscriptions.
