@@ -3,6 +3,7 @@ import {
     Subscribable,
 } from 'rxjs'
 import { SubscriptionsHub } from './SubscriptionsHub'
+import { ReadonlyStream } from './ReadonlyStream'
 
 export class ValueSubject<T> extends BehaviorSubject<T> {
     protected _internalPromise: Promise<T>
@@ -61,6 +62,13 @@ export class ValueSubject<T> extends BehaviorSubject<T> {
         if (!this.closed) {
             this.unsubscribe()
         }
+    }
+
+    toReadonlyStream(): ReadonlyStream<T> {
+        const observable = new ReadonlyStream<T>();
+        (<any>observable).source = this
+
+        return observable
     }
 
     //

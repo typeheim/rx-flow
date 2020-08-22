@@ -1,8 +1,11 @@
 import { DestroyEvent } from '@typeheim/fire-rx'
-import { Unsubscribable } from './contracts'
+import {
+    Unsubscribable,
+    TeardownLogic,
+} from './contracts'
 
 export class SubscriptionsHub {
-    protected subscriptions: Unsubscribable[] = []
+    protected subscriptions = []
 
     constructor(destroyEvent?: DestroyEvent) {
         if (destroyEvent) {
@@ -18,15 +21,20 @@ export class SubscriptionsHub {
         destroyEvent.subscribe(() => { this.unsubscribe() })
     }
 
-    add(subscription: Unsubscribable) {
+    add(subscription: Unsubscribable | TeardownLogic) {
         this.subscriptions.push(subscription)
     }
 
     unsubscribe() {
         this.subscriptions.forEach(subscription => {
+            // additional verification to ensure valid subscription passed
+            if (subscription['unsubscribe'] === undefined) { return }
+
             if (subscription['closed'] !== undefined && !subscription['closed']) {
+                // if subscription is closed we should mot unsubscribe
                 subscription.unsubscribe()
-            } else {
+            } else if (subscription['closed'] === undefined) {
+                // if for some reason `closed` isn't defined we still unsubscribe
                 // @todo - figure out a better way to prevent duplication
                 subscription.unsubscribe()
             }

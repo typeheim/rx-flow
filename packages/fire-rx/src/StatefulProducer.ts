@@ -4,11 +4,11 @@ import {
 } from 'rxjs'
 import { SubscriptionsHub } from '@typeheim/fire-rx'
 import { Subscribable } from './contracts'
+import { ReadonlyStream } from './ReadonlyStream'
 
 export class StatefulProducer<T> extends ReplaySubject<T> {
     protected _emitsCount = 0
     protected hub = new SubscriptionsHub()
-
 
     constructor(bufferSize: number = 1, windowTime: number = Number.POSITIVE_INFINITY, scheduler?: SchedulerLike) {
         super(bufferSize, windowTime, scheduler)
@@ -21,7 +21,6 @@ export class StatefulProducer<T> extends ReplaySubject<T> {
     get subscriptionsCount() {
         return this.hub.count
     }
-
 
     next(value?: T): void {
         this._emitsCount++
@@ -48,6 +47,13 @@ export class StatefulProducer<T> extends ReplaySubject<T> {
         })
 
         return this
+    }
+
+    toReadonlyStream(): ReadonlyStream<T> {
+        const observable = new ReadonlyStream<T>();
+        (<any>observable).source = this
+
+        return observable
     }
 
     /**

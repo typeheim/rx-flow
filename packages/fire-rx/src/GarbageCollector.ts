@@ -1,12 +1,17 @@
 /**
- * Rx subscriptions and subjects garbage collector
+ * Rx subjects garbage collector
  */
 export class GarbageCollector {
-    addSubscriber() {
+    protected subjects = []
 
+    addSubject(subject) {
+        this.subjects.push(subject)
     }
 
-    addSubject() {
-
+    clean() {
+        this.subjects.forEach(subject => {
+            subject.stop()
+        })
+        this.subjects = []
     }
 }
