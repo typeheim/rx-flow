@@ -1,6 +1,6 @@
 {
   "name": "@typeheim/rx-flow",
-  "version": "0.0.0-beta.20",
+  "version": "0.0.1",
   "description": "Collection of reactive libraries to ease your life",
   "main": "index.js",
   "private": true,
