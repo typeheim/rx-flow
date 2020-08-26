@@ -1,7 +1,7 @@
 # RxFlow
 
-<p align="center">Collection of reactive libraries to ease your life.</p>
-<p align="center">
+Collection of reactive libraries to ease your life
+<p>
     <a href="https://www.npmjs.com/package/@typeheim/fire-rx" target="_blank"><img src="https://img.shields.io/npm/v/@typeheim/fire-rx.svg" alt="NPM Version" /></a>
     <a href="https://www.npmjs.com/package/@typeheim/fire-rx" target="_blank"><img src="https://img.shields.io/npm/l/@typeheim/fire-rx.svg" alt="Package License" /></a>
     <a href="https://discord.gg/dmMznp9" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>

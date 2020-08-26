@@ -10,7 +10,7 @@
   "scripts": {
     "run:build": "npx tsc",
     "run:bootstrap": "npx lerna bootstrap",
-    "run:spec": "jest",
+    "run:spec": "npx jest",
     "run:publish": "yarn clean:build && yarn install && yarn run:spec && yarn run:build && npx lerna publish && yarn clean:build && yarn install",
     "clean:build": "node prepare-build.js"
   },
