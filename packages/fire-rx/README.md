@@ -4,6 +4,7 @@ FireRx extends RxJS with different useful features. Adds memory safety and garba
 and subscriptions, subjects that behave both like subjects and promises to support async/await and many more. 
 <p>
     <a href="https://www.npmjs.com/package/@typeheim/fire-rx" target="_blank"><img src="https://img.shields.io/npm/v/@typeheim/fire-rx.svg" alt="NPM Version" /></a>
+    <a href="https://travis-ci.org/github/typeheim/rx-flow" target="_blank"><img src="https://travis-ci.org/typeheim/rx-flow.svg?branch=master" alt="Build Status" /></a>
     <a href="https://www.npmjs.com/package/@typeheim/fire-rx" target="_blank"><img src="https://img.shields.io/npm/l/@typeheim/fire-rx.svg" alt="Package License" /></a>
     <a href="https://discord.gg/dmMznp9" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
 </p>
