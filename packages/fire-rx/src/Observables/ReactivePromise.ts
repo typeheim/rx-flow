@@ -1,18 +1,11 @@
 import {
     ReplaySubject,
     Subscribable,
+    Observable,
 } from 'rxjs'
+import { SubscriptionsHub } from '../Utils/SubscriptionsHub'
 
-import {
-    PartialObserver,
-    SubscriptionLike,
-} from './contracts'
-import { SubscriptionsHub } from './SubscriptionsHub'
-
-/** Symbol.observable or a string "@@observable". Used for interop */
-export const observable = (() => typeof Symbol === 'function' && Symbol.observable || '@@observable')()
-
-export class ReactivePromise<T> implements Subscribable<T> {
+export class ReactivePromise<T> extends Observable<T> {
     protected internalPromise: Promise<T>
     protected internalSubject = new ReplaySubject<T>(1)
     protected value: T
@@ -20,27 +13,34 @@ export class ReactivePromise<T> implements Subscribable<T> {
     protected subHub = new SubscriptionsHub()
 
     constructor(executor?: PromiseExecutor<T>) {
+        super()
+        this.source = this.internalSubject
         this.internalPromise = new Promise<T>((resolve, reject) => {
-            this.subHub.add(this.subscribe((data) => {
-                resolve(data)
-            }, error => {
-                reject(error)
-            }, () => {
-                resolve(this.value)
+            this.subHub.add(this.subscribe({
+                next: (data) => {
+                    resolve(data)
+                },
+                error: error => {
+                    reject(error)
+                },
+                complete: () => {
+                    resolve(this.value)
+                },
             }))
         })
 
+        let state = {
+            resolve: (value?) => this.resolve(value),
+            reject: (reason) => this.reject(reason),
+        }
+
         if (executor) {
-            executor((value) => this.resolve(value), (reason) => this.reject(reason))
+            executor(state)
         }
     }
 
     get resolved() {
         return this._resolved
-    }
-
-    get subscriptionsCount() {
-        return this.subHub.count
     }
 
     resolve(value?: T): void {
@@ -62,9 +62,27 @@ export class ReactivePromise<T> implements Subscribable<T> {
         this.subHub.unsubscribe()
     }
 
+    resolveOn(resolveEventOrConfig: ResolveOnConfig<T> | Subscribable<any>) {
+        let resolveEvent = null
+        let resolveValue = null
+        if (resolveEventOrConfig['event']) {
+            resolveEvent = resolveEventOrConfig['event']
+            resolveValue = resolveEventOrConfig['value']
+        } else {
+            resolveEvent = resolveEventOrConfig
+        }
+
+        resolveEvent.subscribe(() => {
+            if (!this.resolved) {
+                this.resolve(resolveValue)
+            }
+        })
+
+        return this
+    }
+
     /**
-     * Subscribe to a destruction event to complete and unsubscribe as it
-     * emits
+     * @deprecated will be removed in next release
      */
     emitUntil(destroyEvent: Subscribable<any>) {
         destroyEvent.subscribe(() => {
@@ -74,37 +92,6 @@ export class ReactivePromise<T> implements Subscribable<T> {
             }
         })
 
-        return this
-    }
-
-    //
-    //
-    // SUBJECT INTERFACE
-    //
-    //
-
-    subscribe(observerOrNext?: PartialObserver<T> | ((value: T) => void),
-              error?: (error: any) => void,
-              complete?: () => void): SubscriptionLike {
-        // @ts-ignore
-        let sub = this.internalSubject.subscribe(observerOrNext, error, complete)
-
-        if (this.resolved) {
-            this.subHub.unsubscribe()
-        }
-
-        return sub
-    }
-
-    pipe(...operators: any) {
-        // @ts-ignore
-        return this.internalSubject.pipe(...operators)
-    }
-
-    /**
-     * An interop point defined by the es7-observable spec https://github.com/zenparsing/es-observable
-     */
-    [observable]() {
         return this
     }
 
@@ -121,7 +108,7 @@ export class ReactivePromise<T> implements Subscribable<T> {
      * @returns A Promise for the completion of which ever callback is executed.
      */
     then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2> {
-        return this.internalPromise.then(onfulfilled)
+        return this.internalPromise.then(onfulfilled, onrejected)
     }
 
     /**
@@ -144,8 +131,17 @@ export class ReactivePromise<T> implements Subscribable<T> {
     }
 }
 
-export type PromiseExecutor<T> = (resolve: (value?: T) => void, reject: (reason?: any) => void) => void
+export interface ResolveOnConfig<T> {
+    event: Subscribable<any>
+    value: T
+}
 
+export type PromiseExecutor<T> = (state: PromiseState<T>) => void
+
+export interface PromiseState<T> {
+    resolve: (value?: T) => void
+    reject: (error: any) => void
+}
 
 export class PromiseResolvedException extends Error {
     protected constructor(message: string) {super(message)}

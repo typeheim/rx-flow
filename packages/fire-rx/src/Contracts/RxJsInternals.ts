@@ -1,7 +1,3 @@
-/** OBSERVABLE INTERFACES */
-
-/** SUBSCRIPTION INTERFACES */
-
 export interface NextObserver<T> {
     closed?: boolean;
     next: (value: T) => void;
@@ -34,7 +30,6 @@ export interface SubscriptionLike extends Unsubscribable {
 
     readonly closed: boolean;
 }
-
 
 export interface Subscribable<T> {
     subscribe(observer?: PartialObserver<T>): Unsubscribable;

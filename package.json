@@ -71,8 +71,7 @@
     "collectCoverage": true,
     "rootDir": "./",
     "moduleNameMapper": {
-      "@typeheim/fire-auth": "<rootDir>/packages/fire-auth",
-      "@typeheim/orm-on-fire": "<rootDir>/packages/orm-on-fire"
+      "@typeheim/fire-rx": "<rootDir>/packages/fire-rx"
     },
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",

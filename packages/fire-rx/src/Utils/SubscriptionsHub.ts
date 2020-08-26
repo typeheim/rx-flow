@@ -1,8 +1,8 @@
-import { DestroyEvent } from '@typeheim/fire-rx'
 import {
     Unsubscribable,
     TeardownLogic,
-} from './contracts'
+} from '../Contracts/RxJsInternals'
+import { DestroyEvent } from '../Observables/DestroyEvent'
 
 export class SubscriptionsHub {
     protected subscriptions = []

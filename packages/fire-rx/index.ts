@@ -1,8 +1,13 @@
-export * from './src/DestroyEvent'
-export * from './src/GarbageCollector'
-export * from './src/StatefulSubject'
-export * from './src/SubscriptionsHub'
-export * from './src/ValueSubject'
-export * from './src/ReactivePromise'
-export * from './src/StatefulProducer'
+export * from './src/Contracts/Observables'
+
 export * from './src/Decorators/OnDestroyHooks'
+
+export * from './src/Observables/DestroyEvent'
+export * from './src/Observables/ReactivePromise'
+export * from './src/Observables/ReadonlyStream'
+export * from './src/Observables/StatefulProducer'
+export * from './src/Observables/StatefulSubject'
+export * from './src/Observables/ValueSubject'
+
+export * from './src/Utils/SubscriptionsHub'
+export * from './src/Utils/GarbageCollector'

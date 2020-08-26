@@ -1,8 +1,10 @@
 FireRx extend RxJS with custom Observable types.
 
 ## StatefulSubject
+
 StatefulSubject acts as ReplaySubject and Promise so that you can use async/await operators on it as well as regular Subject methods. 
 Adds memory safety and garbage collection automatically calling unsubscribe on subscriptions.
+
 ```typescript
 import { StatefulSubject } from '@typeheim/fire-rx'
 
@@ -17,8 +19,28 @@ await subject // returns 6
 subject.stop() // completes subject and unsubscribe all subscriptions
 ```
 
+## StatefulProducer
+StatefulProducer works similarly to StatefulSubject but with main difference that it can accept data only from
+executor passed to constructor. 
+
+```typescript
+import { StatefulProducer } from '@typeheim/fire-rx'
+
+let producer = new StatefulProducer<number>((state) => {
+    dataSource.onData(data => state.next(data))
+})
+
+let data = await producer
+
+producer.subscribe(data => /.../)
+
+producer.stop() // completes producer and unsubscribe all subscriptions
+```
+
 ## ValueSubject
+
 ValueSubject extends BehaviorSubject from RxJS and adds memory safety, garbage collection and Promise interface so that you can use async/await operators on it.
+
 ```typescript
 import { ValueSubject } from '@typeheim/fire-rx'
 
@@ -32,7 +54,6 @@ await subject // returns 6
 
 subject.stop() // completes subject and unsubscribe all subscriptions
 ```
-
 
 ## ReactivePromise
 ReactivePromise acts as a regular Promise but additionally let you use `subscribe` and `pipe` methods. ReactivePromise, like 
@@ -50,21 +71,20 @@ promise.subscribe(value => console.log(value)) // returns 5
 
 //..............
 
-let promise = new ReactivePromise<number>((resolve, reject) => {
-    resolve(5)
+let promise = new ReactivePromise<number>((state) => {
+    state.resolve(5)
 })
 
 promise.subscribe(value => console.log(value)) // returns 5 
 ```
 
-## StatefulProducer
-StatefulProducer extends ReplaySubject from RxJS and adds memory safety and garbage collection.
+ReactivePromise can be automatically triggered using `resolveOn` hook
 ```typescript
-import { StatefulProducer } from '@typeheim/fire-rx'
+let event = new DestroyEvent()
+let promise = new ReactivePromise<number>()
 
-let subject = new StatefulProducer<number>()
+promise.subscribe(value => {/*....*/})
 
-subject.next(5) // emits to all subscriptions 5
-subject.stop() // completes subject and unsubscribe all subscriptions
+promise.resolveOn(event, 5)
 ```
 

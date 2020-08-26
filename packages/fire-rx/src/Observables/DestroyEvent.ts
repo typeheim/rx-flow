@@ -1,5 +1,5 @@
 import { ReplaySubject } from 'rxjs'
-import { SubscriptionsHub } from './SubscriptionsHub'
+import { SubscriptionsHub } from '../Utils/SubscriptionsHub'
 
 /**
  * Special type of subject that should be used in pair with `until` method of

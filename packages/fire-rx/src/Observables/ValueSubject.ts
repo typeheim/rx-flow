@@ -2,7 +2,7 @@ import {
     BehaviorSubject,
     Subscribable,
 } from 'rxjs'
-import { SubscriptionsHub } from './SubscriptionsHub'
+import { SubscriptionsHub } from '../Utils/SubscriptionsHub'
 import { ReadonlyStream } from './ReadonlyStream'
 
 export class ValueSubject<T> extends BehaviorSubject<T> {

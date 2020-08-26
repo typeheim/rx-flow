@@ -1,15 +1,96 @@
-import { StatefulProducer } from './StatefulProducer'
+import { SubscriptionsHub } from '../Utils/SubscriptionsHub'
+import {
+    SchedulerLike,
+    ReplaySubject,
+} from 'rxjs'
+import { ReadonlyStream } from './ReadonlyStream'
+import { Producer } from '../Contracts/Observables'
+import { Subscribable } from '../Contracts/RxJsInternals'
 
-export class StatefulSubject<T> extends StatefulProducer<T> {
+export class StatefulSubject<T> extends ReplaySubject<T> implements Producer<T> {
     protected _internalPromise: Promise<T>
+    protected _emitsCount = 0
+    protected hub = new SubscriptionsHub()
+
+    constructor(bufferSize: number = 1, windowTime: number = Number.POSITIVE_INFINITY, scheduler?: SchedulerLike) {
+        super(bufferSize, windowTime, scheduler)
+    }
+
+    get emitsCount() {
+        return this._emitsCount
+    }
+
+    get subscriptionsCount() {
+        return this.hub.count
+    }
+
+    next(value?: T): void {
+        this._emitsCount++
+        super.next(value)
+    }
+
+    /**
+     * @deprecated internal method
+     */
+    _subscribe(subscriber) {
+        let sub = super._subscribe(subscriber)
+        this.hub.add(sub)
+
+        return sub
+    }
+
+    /**
+     * Subscribe to a destruction event to complete and unsubscribe as it
+     * emits
+     */
+    emitUntil(destroyEvent: Subscribable<any>): this {
+        destroyEvent.subscribe(() => {
+            this.stop()
+        })
+
+        return this
+    }
+
+    /**
+     * Create readonly stream with this subject as source
+     */
+    toReadonlyStream(): ReadonlyStream<T> {
+        const observable = new ReadonlyStream<T>();
+        (<any>observable).source = this
+
+        return observable
+    }
 
     /**
      * Completes subject and clean up resources
      */
-    stop() {
+    stop(): void {
+        if (!this.isStopped) {
+            this.complete()
+        }
+        this.hub.unsubscribe()
+
+        if (!this.closed) {
+            this.unsubscribe()
+        }
         this._internalPromise = null
-        super.stop()
     }
+
+    /**
+     * Completes subject with error and unsubscribe all subscriptions
+     */
+    fail(error): void {
+        this.error(error)
+        this.hub.unsubscribe()
+
+        if (!this.closed) {
+            this.unsubscribe()
+        }
+    }
+
+    //
+    // Promise interface
+    //
 
     protected get internalPromise(): Promise<T> {
         if (!this._internalPromise) {
@@ -49,7 +130,7 @@ export class StatefulSubject<T> extends StatefulProducer<T> {
      * @returns A Promise for the completion of which ever callback is executed.
      */
     then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2> {
-        return this.internalPromise.then(onfulfilled)
+        return this.internalPromise.then(onfulfilled, onrejected)
     }
 
     /**

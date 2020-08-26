@@ -1,7 +1,10 @@
 import { Observable } from 'rxjs'
 
 export class ReadonlyStream<T> extends Observable<T> {
-    stop() {
+    /**
+     * Stop source.
+     */
+    stop(): void {
         //@ts-ignore
         this.source.stop()
     }

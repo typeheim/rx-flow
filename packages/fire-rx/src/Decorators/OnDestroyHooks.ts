@@ -59,27 +59,37 @@ function attachDestroyHook(metadata, destroyType) {
 
     return (target: Object, propertyKey: string | symbol) => {
         const hookName = config.destroyHook
-        const queueProperty = `__fireRx${config.type}Queue`
+        const queueProperty = `__fireRxQueue`
 
         if (!target.hasOwnProperty(queueProperty)) {
-            target[queueProperty] = []
+            target[queueProperty] = {}
+            target[queueProperty][config.type] = []
+        } else if (!target[queueProperty][config.type]) {
+            target[queueProperty][config.type] = []
         }
         if (!target.hasOwnProperty(hookName)) {
             target[hookName] = function() {}
         }
-        target[queueProperty].push(propertyKey)
+        target[queueProperty][config.type].push(propertyKey)
 
         // prevent wrapping destructor several times
-        const patchFlag = `${config.type}HookPatchedByFireRx`
+        const patchFlag = `__hookPatchedByFireRx`
         if (target[hookName][patchFlag]) {
             return
         }
 
         const originalOnDestroy = target[hookName]
         target[hookName] = function(...args): void {
-            this[queueProperty].forEach(name => {
-                this[name][config.type]()
-            })
+            try {
+                for (let queueType in this[queueProperty]) {
+                    this[queueProperty][queueType].forEach(name => {
+                        this[name][queueType]()
+                    })
+                }
+            } catch (error) {
+                let capitalizedType = config.type.charAt(0).toUpperCase() + config.type.slice(1)
+                console.log(`Error at ${capitalizedType}OnDestroy:`, error)
+            }
 
             return originalOnDestroy.apply(this, args)
         }

@@ -3,20 +3,46 @@ import {
     StatefulProducer,
 } from '../index'
 
-describe('StatefulStream', () => {
-    it('unsubscribe all subscriptions on stop ', async (done) => {
-        let subject = new StatefulProducer<number>(1)
+describe('StatefulProducer', () => {
+    it('can push data to subscriptions', async (done) => {
+        let producer = new StatefulProducer<number>((state) => {
+            state.next(1)
+        })
+        let subscriptions = []
+        let dataStorage = []
+
+        subscriptions.push(producer.subscribe(data => dataStorage.push(data)))
+        subscriptions.push(producer.subscribe(data => dataStorage.push(data)))
+
+        producer.stop()
+
+        expect(producer.isStopped).toBeTruthy()
+        expect(producer.closed).toBeTruthy()
+
+        expect(dataStorage.length).toEqual(2)
+        expect(subscriptions[0].closed).toBeTruthy()
+        expect(subscriptions[1].closed).toBeTruthy()
+
+        done()
+    })
+
+    it('unsubscribe all subscriptions on destory event', async (done) => {
+        let producer = new StatefulProducer<number>((state) => {
+            state.next(1)
+        })
+        let destroyEvent = new DestroyEvent()
+
+        producer.emitUntil(destroyEvent)
+
         let subscriptions = []
 
-        subscriptions.push(subject.subscribe(data => data))
-        subscriptions.push(subject.subscribe(data => data))
+        subscriptions.push(producer.subscribe(data => data))
+        subscriptions.push(producer.subscribe(data => data))
 
-        subject.next(1)
+        destroyEvent.emit()
 
-        subject.stop()
-
-        expect(subject.isStopped).toBeTruthy()
-        expect(subject.closed).toBeTruthy()
+        expect(producer.isStopped).toBeTruthy()
+        expect(producer.closed).toBeTruthy()
 
         expect(subscriptions[0].closed).toBeTruthy()
         expect(subscriptions[0].closed).toBeTruthy()
@@ -24,26 +50,15 @@ describe('StatefulStream', () => {
         done()
     })
 
-    it('unsubscribe all subscriptions on stop', async (done) => {
-        let subject = new StatefulProducer<number>(1)
-        let destroyEvent = new DestroyEvent()
+    it('is awaitable', async (done) => {
+        let producer = new StatefulProducer<number>((state) => {
+            state.next(1)
+        })
+        let data = await producer
 
-        subject.emitUntil(destroyEvent)
+        producer.stop()
 
-        let subscriptions = []
-
-        subscriptions.push(subject.subscribe(data => data))
-        subscriptions.push(subject.subscribe(data => data))
-
-        subject.next(1)
-
-        destroyEvent.emit()
-
-        expect(subject.isStopped).toBeTruthy()
-        expect(subject.closed).toBeTruthy()
-
-        expect(subscriptions[0].closed).toBeTruthy()
-        expect(subscriptions[0].closed).toBeTruthy()
+        expect(data).toEqual(1)
 
         done()
     })

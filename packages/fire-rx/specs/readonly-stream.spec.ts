@@ -1,6 +1,4 @@
-import {
-    StatefulSubject,
-} from '..'
+import { StatefulSubject } from '..'
 
 describe('ReadonlyStream', () => {
     it('can stop source subject', async (done) => {
@@ -21,8 +19,6 @@ describe('ReadonlyStream', () => {
         expect(sub.closed).toBeTruthy()
         expect(sub2.closed).toBeTruthy()
         expect(sub3.closed).toBeTruthy()
-
-        console.log(stream.source)
 
         done()
     })
@@ -49,8 +45,6 @@ describe('ReadonlyStream', () => {
         expect(sub2.closed).toBeTruthy()
         expect(sub3.closed).toBeTruthy()
         expect(independentSub.closed).toBeTruthy()
-
-        console.log(stream.source)
 
         done()
     })

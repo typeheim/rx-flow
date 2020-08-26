@@ -81,8 +81,10 @@ class WithCustomDestructor {
 ```
 
 ## SubscriptionsHub
+
 SubscriptionsHub represents a hub of subscriptions that let you unsubscribe all of the stored subscriptions at once. It might be useful to trigger
 at object destruction to free up resources.
+
 ```typescript
 import { SubscriptionsHub, StatefulSubject } from '@typeheim/fire-rx'
 
@@ -102,6 +104,7 @@ class Sample {
 ```
 
 ## DestroyEvent
+
 DestroyEvent is a special reactive class that servers as a destruction notifier and can be used in pair with Fire subjects or
 with SubscriptionsHub
 

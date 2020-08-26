@@ -1,4 +1,4 @@
-import { StatefulSubject } from '../src/StatefulSubject'
+import { StatefulSubject } from '..'
 
 describe('StatefulSubject', () => {
     it('can be executed as promise', async (done) => {
