@@ -17,7 +17,7 @@ describe('StatefulProducer', () => {
         producer.stop()
 
         expect(producer.isStopped).toBeTruthy()
-        expect(producer.closed).toBeTruthy()
+        expect(producer.closed).toBeFalsy()
 
         expect(dataStorage.length).toEqual(2)
         expect(subscriptions[0].closed).toBeTruthy()
@@ -41,8 +41,8 @@ describe('StatefulProducer', () => {
 
         destroyEvent.emit()
 
-        expect(producer.isStopped).toBeTruthy()
-        expect(producer.closed).toBeTruthy()
+        expect(producer.isStopped).toBeTruthy() // stop() should stop producer
+        expect(producer.closed).toBeFalsy() // stop() should not close producer
 
         expect(subscriptions[0].closed).toBeTruthy()
         expect(subscriptions[0].closed).toBeTruthy()

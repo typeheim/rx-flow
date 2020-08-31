@@ -10,10 +10,10 @@ import { ReplaySubject } from 'rxjs'
 describe('*OnDestroy cleanup hooks', () => {
     function verifySubjectsAreStopped(object) {
         expect(object.valueSubject.isStopped).toBeTruthy()
-        expect(object.valueSubject.closed).toBeTruthy()
+        expect(object.valueSubject.closed).toBeFalsy()
 
-        expect(object.statefulSubject.isStopped).toBeTruthy()
-        expect(object.statefulSubject.closed).toBeTruthy()
+        expect(object.statefulSubject.isStopped).toBeTruthy()  // stop hook should stop subject
+        expect(object.statefulSubject.closed).toBeFalsy() // stop hook should not close subject
 
         expect(object.notStoppableSubject.isStopped).toBeFalsy()
         expect(object.notStoppableSubject.closed).toBeFalsy()

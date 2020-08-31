@@ -1,31 +1,21 @@
-import { ReplaySubject } from 'rxjs'
-import { SubscriptionsHub } from '../Utils/SubscriptionsHub'
+import { Observable } from 'rxjs'
+import { StatefulSubject } from '../..'
 
 /**
  * Special type of subject that should be used in pair with `until` method of
  * Fire subjects to complete them.
  */
-export class DestroyEvent extends ReplaySubject<boolean> {
-    protected hub = new SubscriptionsHub()
+export class DestroyEvent extends Observable<boolean> {
+    protected internalSubject = new StatefulSubject<boolean>()
 
-    /**
-     * @deprecated internal method
-     */
-    _subscribe(subscriber) {
-        let sub = super._subscribe(subscriber)
-        this.hub.add(sub)
-        return sub
+    constructor() {
+        super()
+        this.source = this.internalSubject
     }
 
     public emit() {
-        this.next(true)
-        if (!this.isStopped) {
-            this.complete()
-        }
-        this.hub.unsubscribe()
+        this.internalSubject.next(true)
 
-        if (!this.closed) {
-            this.unsubscribe()
-        }
+        this.internalSubject.stop()
     }
 }

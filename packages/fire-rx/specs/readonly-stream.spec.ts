@@ -11,9 +11,9 @@ describe('ReadonlyStream', () => {
 
         stream.stop()
 
-        // stream should stop source subject
+        // stream should stop source subject but not close
         expect(subject.isStopped).toBeTruthy()
-        expect(subject.closed).toBeTruthy()
+        expect(subject.closed).toBeFalsy()
 
         // subscriptions should be closed when subject stop
         expect(sub.closed).toBeTruthy()
@@ -36,9 +36,9 @@ describe('ReadonlyStream', () => {
 
         stream.stop()
 
-        // stream should stop source subject
+        // stream should stop source subject but not close
         expect(subject.isStopped).toBeTruthy()
-        expect(subject.closed).toBeTruthy()
+        expect(subject.closed).toBeFalsy()
 
         // subscriptions should be closed when subject stop
         expect(sub.closed).toBeTruthy()

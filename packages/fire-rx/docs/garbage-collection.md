@@ -80,48 +80,27 @@ class WithCustomDestructor {
 }
 ```
 
-## SubscriptionsHub
-
-SubscriptionsHub represents a hub of subscriptions that let you unsubscribe all of the stored subscriptions at once. It might be useful to trigger
-at object destruction to free up resources.
-
-```typescript
-import { SubscriptionsHub, StatefulSubject } from '@typeheim/fire-rx'
-
-class Sample {
-    protected hub: SubscriptionsHub = new SubscriptionsHub()
-    
-    doSomething() {
-        let subject = new StatefulSubject<number>()
-        
-        this.hub.add(subject.subscribe(data => console.log(data)))
-    }
-    
-    onDestroy() {
-        this.hub.unsubscribe()
-    }
-}
-```
-
 ## DestroyEvent
 
 DestroyEvent is a special reactive class that servers as a destruction notifier and can be used in pair with Fire subjects or
-with SubscriptionsHub
+`takeUntil` until operator.
 
 ```typescript
 import { DestroyEvent, SubscriptionsHub, StatefulSubject } from '@typeheim/fire-rx'
 
 class Sample {
     protected destroyEvent: DestroyEvent = new DestroyEvent()
-    protected hub: SubscriptionsHub = new SubscriptionsHub(this.destroyEvent)
 
     doSomething() {
         let subject = new StatefulSubject<number>()
 
-        this.hub.add(subject.subscribe(data => console.log(data)))
-
         let anotherSubject = new StatefulSubject<number>()
-        
+
+        subject.pipe(
+            takeUntil(destroyEvent),
+            map(data => data.name)
+        ).subscribe(data => console.log(data))
+
         subject.emitUntil(this.destroyEvent)
 
         subject.subscribe(data => console.log(data))

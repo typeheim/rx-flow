@@ -1,14 +1,14 @@
 import {
     BehaviorSubject,
     Subscribable,
+    Subscription,
 } from 'rxjs'
-import { SubscriptionsHub } from '../Utils/SubscriptionsHub'
 import { ReadonlyStream } from './ReadonlyStream'
 
 export class ValueSubject<T> extends BehaviorSubject<T> {
     protected _internalPromise: Promise<T>
     protected _emitsCount = 0
-    protected hub = new SubscriptionsHub()
+    protected hub = new Subscription()
 
     get emitsCount() {
         return this._emitsCount
@@ -30,11 +30,11 @@ export class ValueSubject<T> extends BehaviorSubject<T> {
     }
 
     /**
-     * Subscribe to a destruction event to complete and unsubscribe as it
+     * Subscribe to an event to complete and unsubscribe as it
      * emits
      */
-    emitUntil(destroyEvent: Subscribable<any>) {
-        destroyEvent.subscribe(() => {
+    emitUntil(event: Subscribable<any>) {
+        event.subscribe(() => {
             this.stop()
         })
 
@@ -42,13 +42,14 @@ export class ValueSubject<T> extends BehaviorSubject<T> {
     }
 
     stop() {
+        if (this.hasError) {
+            // if subject was failed, further steps ain't necessary
+            return
+        }
         if (!this.isStopped) {
             this.complete()
         }
         this.hub.unsubscribe()
-        if (!this.closed) {
-            this.unsubscribe()
-        }
         this._internalPromise = null
     }
 

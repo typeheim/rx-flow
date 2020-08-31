@@ -1,22 +1,21 @@
 import {
-    ReplaySubject,
     Subscribable,
     Observable,
 } from 'rxjs'
-import { SubscriptionsHub } from '../Utils/SubscriptionsHub'
+import { StatefulSubject } from './StatefulSubject'
 
 export class ReactivePromise<T> extends Observable<T> {
     protected internalPromise: Promise<T>
-    protected internalSubject = new ReplaySubject<T>(1)
+    protected internalSubject = new StatefulSubject<T>(1)
     protected value: T
     protected _resolved = false
-    protected subHub = new SubscriptionsHub()
+
 
     constructor(executor?: PromiseExecutor<T>) {
         super()
         this.source = this.internalSubject
         this.internalPromise = new Promise<T>((resolve, reject) => {
-            this.subHub.add(this.subscribe({
+            this.subscribe({
                 next: (data) => {
                     resolve(data)
                 },
@@ -26,7 +25,7 @@ export class ReactivePromise<T> extends Observable<T> {
                 complete: () => {
                     resolve(this.value)
                 },
-            }))
+            })
         })
 
         let state = {
@@ -50,16 +49,14 @@ export class ReactivePromise<T> extends Observable<T> {
         this.value = value
         this._resolved = true
         this.internalSubject.next(value)
-        this.internalSubject.complete()
-        this.subHub.unsubscribe()
+        this.internalSubject.stop()
     }
 
     reject(error?: any) {
         if (this.resolved) {
             throw PromiseResolvedException.withMessage('Promise already resolved')
         }
-        this.internalSubject.error(error)
-        this.subHub.unsubscribe()
+        this.internalSubject.fail(error)
     }
 
     resolveOn(resolveEventOrConfig: ResolveOnConfig<T> | Subscribable<any>) {
@@ -87,8 +84,7 @@ export class ReactivePromise<T> extends Observable<T> {
     emitUntil(destroyEvent: Subscribable<any>) {
         destroyEvent.subscribe(() => {
             if (!this.resolved) {
-                this.internalSubject.complete()
-                this.subHub.unsubscribe()
+                this.internalSubject.stop()
             }
         })
 

@@ -1,7 +1,7 @@
-import { SubscriptionsHub } from '../Utils/SubscriptionsHub'
 import {
     SchedulerLike,
     ReplaySubject,
+    Subscription,
 } from 'rxjs'
 import { ReadonlyStream } from './ReadonlyStream'
 import { Producer } from '../Contracts/Observables'
@@ -10,7 +10,7 @@ import { Subscribable } from '../Contracts/RxJsInternals'
 export class StatefulSubject<T> extends ReplaySubject<T> implements Producer<T> {
     protected _internalPromise: Promise<T>
     protected _emitsCount = 0
-    protected hub = new SubscriptionsHub()
+    protected hub = new Subscription()
 
     constructor(bufferSize: number = 1, windowTime: number = Number.POSITIVE_INFINITY, scheduler?: SchedulerLike) {
         super(bufferSize, windowTime, scheduler)
@@ -18,10 +18,6 @@ export class StatefulSubject<T> extends ReplaySubject<T> implements Producer<T> 
 
     get emitsCount() {
         return this._emitsCount
-    }
-
-    get subscriptionsCount() {
-        return this.hub.count
     }
 
     next(value?: T): void {
@@ -40,11 +36,11 @@ export class StatefulSubject<T> extends ReplaySubject<T> implements Producer<T> 
     }
 
     /**
-     * Subscribe to a destruction event to complete and unsubscribe as it
+     * Subscribe to an event to complete and unsubscribe as it
      * emits
      */
-    emitUntil(destroyEvent: Subscribable<any>): this {
-        destroyEvent.subscribe(() => {
+    emitUntil(event: Subscribable<any>): this {
+        event.subscribe(() => {
             this.stop()
         })
 
@@ -65,14 +61,14 @@ export class StatefulSubject<T> extends ReplaySubject<T> implements Producer<T> 
      * Completes subject and clean up resources
      */
     stop(): void {
+        if (this.hasError) {
+            // if subject was failed, further steps ain't necessary
+            return
+        }
         if (!this.isStopped) {
             this.complete()
         }
         this.hub.unsubscribe()
-
-        if (!this.closed) {
-            this.unsubscribe()
-        }
         this._internalPromise = null
     }
 
@@ -82,10 +78,6 @@ export class StatefulSubject<T> extends ReplaySubject<T> implements Producer<T> 
     fail(error): void {
         this.error(error)
         this.hub.unsubscribe()
-
-        if (!this.closed) {
-            this.unsubscribe()
-        }
     }
 
     //

@@ -13,8 +13,10 @@ export class StatefulProducer<T> extends Observable<T> implements Producer<T> {
         this.source = this.internalSubject
         let state = {
             next: (value?) => this.internalSubject.next(value),
-            stop: () =>  this.internalSubject.stop(),
+            stop: () => this.internalSubject.stop(),
             fail: (error) => this.internalSubject.fail(error),
+            isFinished: () => this.isStopped || this.closed,
+            isFailed: () => this.internalSubject.hasError,
         }
         executor(state)
     }

@@ -4,6 +4,9 @@ import {
 } from '../Contracts/RxJsInternals'
 import { DestroyEvent } from '../Observables/DestroyEvent'
 
+/**
+ * @deprecated will be removed in next release
+ */
 export class SubscriptionsHub {
     protected subscriptions = []
 
