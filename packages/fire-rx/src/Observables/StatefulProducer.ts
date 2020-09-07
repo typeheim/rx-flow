@@ -1,4 +1,7 @@
-import { Observable } from 'rxjs'
+import {
+    Observable,
+    Observer,
+} from 'rxjs'
 
 import { ReadonlyStream } from './ReadonlyStream'
 import { Producer } from '../Contracts/Observables'
@@ -17,6 +20,7 @@ export class StatefulProducer<T> extends Observable<T> implements Producer<T> {
             fail: (error) => this.internalSubject.fail(error),
             isFinished: () => this.isStopped || this.closed,
             isFailed: () => this.internalSubject.hasError,
+            subscribe: (observer: (value: T) => void |  Observer<T>) => this.subscribe(observer)
         }
         executor(state)
     }
@@ -94,4 +98,7 @@ export interface ProducerState<T> {
     next: (value?: T) => void
     stop: () => void
     fail: (error: any) => void
+    isFinished: () => boolean
+    isFailed: () => boolean
+    subscribe: (observer: (value: T) => void |  Observer<T>) => void
 }
