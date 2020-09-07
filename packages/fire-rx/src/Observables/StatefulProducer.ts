@@ -1,17 +1,19 @@
 import {
     Observable,
-    Observer,
 } from 'rxjs'
 
 import { ReadonlyStream } from './ReadonlyStream'
-import { Producer } from '../Contracts/Observables'
+import {
+    Producer,
+    Observer,
+} from '../Contracts/Observables'
 import { Subscribable } from '../Contracts/RxJsInternals'
 import { StatefulSubject } from './StatefulSubject'
 
 export class StatefulProducer<T> extends Observable<T> implements Producer<T> {
     protected internalSubject = new StatefulSubject<T>()
 
-    constructor(executor: (state: ProducerState<T>) => void) {
+    constructor(executor: (context: ProducerState<T>) => void) {
         super()
         this.source = this.internalSubject
         let state = {
