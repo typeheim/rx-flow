@@ -22,7 +22,7 @@ export class StatefulProducer<T> extends Observable<T> implements Producer<T> {
             fail: (error) => this.internalSubject.fail(error),
             isFinished: () => this.isStopped || this.closed,
             isFailed: () => this.internalSubject.hasError,
-            subscribe: (observer: (value: T) => void |  Observer<T>) => this.subscribe(observer)
+            subscribe: (observer: ((value: T) => void) |  Observer<T>) => this.subscribe(observer as any)
         }
         executor(state)
     }
@@ -102,5 +102,5 @@ export interface ProducerState<T> {
     fail: (error: any) => void
     isFinished: () => boolean
     isFailed: () => boolean
-    subscribe: (observer: (value: T) => void |  Observer<T>) => void
+    subscribe: (observer: ((value: T) => void) |  Observer<T>) => void
 }
