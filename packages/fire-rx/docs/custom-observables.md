@@ -19,22 +19,22 @@ await subject // returns 6
 subject.stop() // completes subject and unsubscribe all subscriptions
 ```
 
-## StatefulProducer
-StatefulProducer works similarly to StatefulSubject but with main difference that it can accept data only from
-executor passed to constructor. 
+## StatefulStream
+StatefulStream works similarly to StatefulSubject but with main difference that it can accept data only from
+data provider passed to constructor. 
 
 ```typescript
-import { StatefulProducer } from '@typeheim/fire-rx'
+import { StatefulStream } from '@typeheim/fire-rx'
 
-let producer = new StatefulProducer<number>((state) => {
-    dataSource.onData(data => state.next(data))
+let stream = new StatefulStream<number>((context) => {
+    dataSource.onData(data => context.next(data))
 })
 
-let data = await producer
+let data = await stream
 
-producer.subscribe(data => /.../)
+stream.subscribe(data => /.../)
 
-producer.stop() // completes producer and unsubscribe all subscriptions
+stream.stop() // completes producer and unsubscribe all subscriptions
 ```
 
 ## ValueSubject

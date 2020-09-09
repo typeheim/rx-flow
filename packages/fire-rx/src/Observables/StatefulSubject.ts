@@ -4,11 +4,13 @@ import {
     Subscription,
 } from 'rxjs'
 import { ReadonlyStream } from './ReadonlyStream'
-import { Producer } from '../Contracts/Observables'
+import { Publisher } from '../Contracts/Observables'
 import { Subscribable } from '../Contracts/RxJsInternals'
+import { ReactiveStream } from './ReactiveStream'
 
-export class StatefulSubject<T> extends ReplaySubject<T> implements Producer<T> {
+export class StatefulSubject<T> extends ReplaySubject<T> implements Publisher<T> {
     protected _internalPromise: Promise<T>
+    protected promiseSubscription: Subscription
     protected _emitsCount = 0
     protected hub = new Subscription()
 
@@ -48,13 +50,20 @@ export class StatefulSubject<T> extends ReplaySubject<T> implements Producer<T> 
     }
 
     /**
-     * Create readonly stream with this subject as source
+     * @deprecated
      */
     toReadonlyStream(): ReadonlyStream<T> {
         const observable = new ReadonlyStream<T>();
         (<any>observable).source = this
 
         return observable
+    }
+
+    /**
+     * Create readonly stream with this subject as source
+     */
+    toStream(): ReactiveStream<T> {
+        return new ReactiveStream(this)
     }
 
     /**
@@ -69,7 +78,7 @@ export class StatefulSubject<T> extends ReplaySubject<T> implements Producer<T> 
             this.complete()
         }
         this.hub.unsubscribe()
-        this._internalPromise = null
+        this.clearInternalPromise()
     }
 
     /**
@@ -90,22 +99,22 @@ export class StatefulSubject<T> extends ReplaySubject<T> implements Producer<T> 
             // and to keep behavior consistent, there's a storage variable "lastValue" that will be resolved on subject completion
             let lastValue = null
             this._internalPromise = new Promise<T>((resolve, reject) => {
-                this.subscribe({
+                this.promiseSubscription = this.subscribe({
                     next: (data) => {
                         lastValue = data
 
                         // promise should return only one value and then being destroyed
-                        this._internalPromise = null
+                        this.clearInternalPromise()
                         resolve(data)
                     },
                     error: (error) => {
                         // promise should return only one value and then being destroyed
-                        this._internalPromise = null
+                        this.clearInternalPromise()
                         reject(error)
                     },
                     complete: () => {
                         // promise should return only one value and then being destroyed
-                        this._internalPromise = null
+                        this.clearInternalPromise()
                         resolve(lastValue)
                     },
                 })
@@ -113,6 +122,14 @@ export class StatefulSubject<T> extends ReplaySubject<T> implements Producer<T> 
         }
 
         return this._internalPromise
+    }
+
+    protected clearInternalPromise() {
+        this._internalPromise = null
+        if (this.promiseSubscription) {
+            this.promiseSubscription.unsubscribe()
+            this.promiseSubscription = null
+        }
     }
 
     /**

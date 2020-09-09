@@ -52,4 +52,30 @@ describe('StatefulSubject', () => {
             done()
         })
     })
+
+    it('should be stoppable from streams', async (done) => {
+        let subject = new StatefulSubject<number>()
+        let stream = subject.toStream()
+        let stream2 = subject.toStream()
+
+        let sub = stream.subscribe(data => {})
+        let sub2 = stream.subscribe(data => {})
+        let sub3 = stream.subscribe(data => {})
+
+        let independentSub = stream2.subscribe(data => {})
+
+        stream.stop()
+
+        // stream should stop source subject but not close
+        expect(subject.isStopped).toBeTruthy()
+        expect(subject.closed).toBeFalsy()
+
+        // subscriptions should be closed when subject stop
+        expect(sub.closed).toBeTruthy()
+        expect(sub2.closed).toBeTruthy()
+        expect(sub3.closed).toBeTruthy()
+        expect(independentSub.closed).toBeTruthy()
+
+        done()
+    })
 })

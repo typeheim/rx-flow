@@ -1,89 +1,53 @@
-import {
-    BehaviorSubject,
-    Subscribable,
-    Subscription,
-} from 'rxjs'
-import { ReadonlyStream } from './ReadonlyStream'
-import { Publisher } from '../..'
-import { ReactiveStream } from './ReactiveStream'
+import { Observable } from 'rxjs'
+import { Publisher } from '@typeheim/fire-rx'
+import { Subscribable } from '../Contracts/RxJsInternals'
 
-export class ValueSubject<T> extends BehaviorSubject<T> implements Publisher<T> {
+export class ReactiveStream<T> extends Observable<T> implements Publisher<T> {
     protected _internalPromise: Promise<T>
-    protected promiseSubscription: Subscription
-    protected _emitsCount = 0
-    protected hub = new Subscription()
+    protected promiseSubscription
+    protected sourceSubject: Publisher<T>
 
-    get emitsCount() {
-        return this._emitsCount
+    constructor(dataSource: Observable<any> | Publisher<any>, sourceSubject?: Publisher<any>) {
+        super()
+
+        this.source = dataSource as Observable<any>
+        this.sourceSubject = sourceSubject ?? dataSource as Publisher<any>
     }
 
-    next(value?: T): void {
-        this._emitsCount++
-        super.next(value)
+    get isStopped() {
+        return this.sourceSubject.isStopped
+    }
+
+    get closed() {
+        return this.sourceSubject.closed
+    }
+
+    get hasError() {
+        return this.sourceSubject.hasError
     }
 
     /**
-     * @deprecated internal method
-     */
-    _subscribe(subscriber) {
-        let sub = super._subscribe(subscriber)
-        this.hub.add(sub)
-
-        return sub
-    }
-
-    /**
-     * Subscribe to an event to complete and unsubscribe as it
+     * Subscribe to a destruction event to complete and stop as it
      * emits
      */
-    emitUntil(event: Subscribable<any>) {
-        event.subscribe(() => {
-            this.stop()
-        })
+    emitUntil(destroyEvent: Subscribable<any>) {
+        this.sourceSubject.emitUntil(destroyEvent)
 
         return this
     }
 
-    stop() {
-        if (this.hasError) {
-            // if subject was failed, further steps ain't necessary
-            return
-        }
-        if (!this.isStopped) {
-            this.complete()
-        }
-        this.hub.unsubscribe()
-        this.clearInternalPromise()
+    /**
+     * Completes producer and clean up resources
+     */
+    stop(): void {
+        this.sourceSubject.stop()
     }
 
     /**
-     * Completes subject with error and unsubscribe all subscriptions
+     * Completes producer with error and unsubscribe all subscriptions
      */
-    fail(error) {
-        this.error(error)
-        this.hub.unsubscribe()
-
-        if (!this.closed) {
-            this.unsubscribe()
-        }
-        this.clearInternalPromise()
-    }
-
-    /**
-     * @deprecated
-     */
-    toReadonlyStream(): ReadonlyStream<T> {
-        const observable = new ReadonlyStream<T>();
-        (<any>observable).source = this
-
-        return observable
-    }
-
-    /**
-     * Create readonly stream with this subject as source
-     */
-    toStream(): ReactiveStream<T> {
-        return new ReactiveStream(this)
+    fail(error: any): void {
+        this.sourceSubject.fail(error)
     }
 
     //
