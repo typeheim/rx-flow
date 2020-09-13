@@ -3,7 +3,6 @@ import {
     ReplaySubject,
     Subscription,
 } from 'rxjs'
-import { ReadonlyStream } from './ReadonlyStream'
 import { Publisher } from '../Contracts/Observables'
 import { Subscribable } from '../Contracts/RxJsInternals'
 import { ReactiveStream } from './ReactiveStream'
@@ -50,19 +49,9 @@ export class StatefulSubject<T> extends ReplaySubject<T> implements Publisher<T>
     }
 
     /**
-     * @deprecated
-     */
-    toReadonlyStream(): ReadonlyStream<T> {
-        const observable = new ReadonlyStream<T>();
-        (<any>observable).source = this
-
-        return observable
-    }
-
-    /**
      * Create readonly stream with this subject as source
      */
-    toStream(): ReactiveStream<T> {
+    asStream(): ReactiveStream<T> {
         return new ReactiveStream(this)
     }
 

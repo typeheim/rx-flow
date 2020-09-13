@@ -55,8 +55,8 @@ describe('StatefulSubject', () => {
 
     it('should be stoppable from streams', async (done) => {
         let subject = new StatefulSubject<number>()
-        let stream = subject.toStream()
-        let stream2 = subject.toStream()
+        let stream = subject.asStream()
+        let stream2 = subject.asStream()
 
         let sub = stream.subscribe(data => {})
         let sub2 = stream.subscribe(data => {})

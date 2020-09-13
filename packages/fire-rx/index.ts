@@ -3,6 +3,7 @@ export * from './src/Contracts/Observables'
 export * from './src/Decorators/OnDestroyHooks'
 
 export * from './src/Observables/AggregateStream'
+export * from './src/Observables/AsyncStream'
 export * from './src/Observables/DestroyEvent'
 export * from './src/Observables/ReactivePromise'
 export * from './src/Observables/ReactiveStream'

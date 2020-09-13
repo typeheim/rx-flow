@@ -1,78 +1,21 @@
-import {
-    BehaviorSubject,
-    Subscribable,
-    Subscription,
-} from 'rxjs'
-import { Publisher } from '../..'
-import { ReactiveStream } from './ReactiveStream'
+import { Observable } from 'rxjs'
+import { Publisher } from '@typeheim/fire-rx'
 
-export class ValueSubject<T> extends BehaviorSubject<T> implements Publisher<T> {
+export class AsyncStream<T> extends Observable<T> {
     protected _internalPromise: Promise<T>
-    protected promiseSubscription: Subscription
-    protected _emitsCount = 0
-    protected hub = new Subscription()
+    protected promiseSubscription
 
-    get emitsCount() {
-        return this._emitsCount
+    constructor(dataSource: Observable<any> | Publisher<any>) {
+        super()
+
+        this.source = dataSource as Observable<any>
     }
 
-    next(value?: T): void {
-        this._emitsCount++
-        super.next(value)
-    }
+    asObservable(): Observable<T> {
+        let obs = new Observable<T>()
+        obs.source = this
 
-    /**
-     * @deprecated internal method
-     */
-    _subscribe(subscriber) {
-        let sub = super._subscribe(subscriber)
-        this.hub.add(sub)
-
-        return sub
-    }
-
-    /**
-     * Subscribe to an event to complete and unsubscribe as it
-     * emits
-     */
-    emitUntil(event: Subscribable<any>) {
-        event.subscribe(() => {
-            this.stop()
-        })
-
-        return this
-    }
-
-    stop() {
-        if (this.hasError) {
-            // if subject was failed, further steps ain't necessary
-            return
-        }
-        if (!this.isStopped) {
-            this.complete()
-        }
-        this.hub.unsubscribe()
-        this.clearInternalPromise()
-    }
-
-    /**
-     * Completes subject with error and unsubscribe all subscriptions
-     */
-    fail(error) {
-        this.error(error)
-        this.hub.unsubscribe()
-
-        if (!this.closed) {
-            this.unsubscribe()
-        }
-        this.clearInternalPromise()
-    }
-
-    /**
-     * Create readonly stream with this subject as source
-     */
-    asStream(): ReactiveStream<T> {
-        return new ReactiveStream(this)
+        return obs
     }
 
     //
