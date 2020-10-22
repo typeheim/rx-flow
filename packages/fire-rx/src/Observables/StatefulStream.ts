@@ -1,6 +1,7 @@
 import { Observer } from '../Contracts/Observables'
 import { StatefulSubject } from './StatefulSubject'
 import { ReactiveStream } from './ReactiveStream'
+import { StreamContext } from '../Contracts/Streams'
 
 export class StatefulStream<T> extends ReactiveStream<T> {
     protected sourceSubject: StatefulSubject<T>
@@ -24,11 +25,3 @@ export class StatefulStream<T> extends ReactiveStream<T> {
  */
 export class StatefulProducer<T> extends StatefulStream<T> {}
 
-export interface StreamContext<T> {
-    next: (value?: T) => void
-    stop: () => void
-    fail: (error: any) => void
-    isFinished: () => boolean
-    isFailed: () => boolean
-    subscribe: (observer: ((value: T) => void) | Observer<T>) => void
-}

@@ -1,6 +1,6 @@
 {
   "name": "@typeheim/rx-flow",
-  "version": "0.0.2",
+  "version": "0.0.8",
   "description": "Collection of reactive libraries to ease your life",
   "main": "index.js",
   "private": true,
@@ -42,10 +42,10 @@
   },
   "homepage": "https://github.com/typeheim/rx-flow#readme",
   "devDependencies": {
-    "@types/jest": "^25.2.1",
+    "@types/jest": "^25.2.3",
     "@types/node": "^13.13.0",
     "@types/reflect-metadata": "^0.1.0",
-    "jest": "^25.3.0",
+    "jest": "^25.5.4",
     "lerna": "^3.20.2",
     "ts-node": "^8.10.1",
     "typescript": "^3.8.3"

@@ -50,7 +50,7 @@ describe('StatefulStream', () => {
         done()
     })
 
-    it('unsubscribe all subscriptions on destory event', async (done) => {
+    it('unsubscribe all subscriptions on destroy event', async (done) => {
         let stream = new StatefulStream<number>((state) => {
             state.next(1)
         })
