@@ -9,7 +9,7 @@ import {
 } from 'rxjs/operators'
 
 describe('ReactivePromise', () => {
-    it('can return value multiple times as promise', async (done) => {
+    it('can return value multiple times as promise', async () => {
         let promise = new ReactivePromise<number>()
 
         promise.resolve(5)
@@ -18,11 +18,9 @@ describe('ReactivePromise', () => {
         expect(await promise).toEqual(5)
         expect(await promise).toEqual(5)
         expect(await promise).toEqual(5)
-
-        done()
     })
 
-    it('can be used with takeUntil operator', async (done) => {
+    it('can be used with takeUntil operator', (done) => {
         let subject = new ReplaySubject(1)
         let promise = new ReactivePromise<number>()
 
@@ -36,7 +34,7 @@ describe('ReactivePromise', () => {
         promise.resolve(1)
     })
 
-    it('can be used with operators', async (done) => {
+    it('can be used with operators', (done) => {
         let promise = new ReactivePromise()
 
         promise.pipe(map((data) => 'value')).subscribe((data) => {
@@ -47,7 +45,7 @@ describe('ReactivePromise', () => {
         promise.resolve({ name: 'ddd' })
     })
 
-    it('can return value multiple times through subscriptions', async (done) => {
+    it('can return value multiple times through subscriptions', (done) => {
         let promise = new ReactivePromise<number>()
 
         promise.resolve(5)
@@ -60,11 +58,9 @@ describe('ReactivePromise', () => {
                 done()
             })
         })
-
-        done()
     })
 
-    it('must unsubscribe subscriptions after resolving', async (done) => {
+    it('must unsubscribe subscriptions after resolving', () => {
         let promise = new ReactivePromise<number>()
 
         let sub1 = promise.subscribe(value => {})
@@ -77,11 +73,9 @@ describe('ReactivePromise', () => {
         expect(sub1.closed).toBeTruthy()
         expect(sub2.closed).toBeTruthy()
         expect(sub3.closed).toBeTruthy()
-
-        done()
     })
 
-    it('resolves when event passed to resolveOn', async (done) => {
+    it('resolves when event passed to resolveOn', (done) => {
         let event = new DestroyEvent()
         let promise = new ReactivePromise<number>()
 

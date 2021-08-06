@@ -1,12 +1,5 @@
 import { Subscribable } from 'rxjs'
 
-/**
- * @deprecated
- */
-export interface Producer<T> extends Publisher<T> {
-
-}
-
 export interface Publisher<T> extends Subscribable<T> {
     isStopped: boolean
 
@@ -23,12 +16,12 @@ export interface Publisher<T> extends Subscribable<T> {
     /**
      * Completes producer and clean up resources
      */
-    stop(): void
+    complete(): void
 
     /**
      * Completes producer with error and unsubscribe all subscriptions
      */
-    fail(error): void
+    error(error): void
 
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -52,11 +45,4 @@ export interface Publisher<T> extends Subscribable<T> {
      * @returns A Promise for the completion of the callback.
      */
     finally(onfinally?: (() => void) | undefined | null): Promise<T>
-}
-
-export interface Observer<T> {
-    closed?: boolean;
-    next?: (value: T) => void;
-    error?: (err: any) => void;
-    complete?: () => void;
 }

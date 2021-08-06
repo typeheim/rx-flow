@@ -1,7 +1,7 @@
 import { StatefulSubject } from '..'
 
 describe('StatefulSubject', () => {
-    it('can be executed as promise', async (done) => {
+    it('can be executed as promise', async () => {
         let subject = new StatefulSubject<number>(1)
 
         subject.next(5)
@@ -15,11 +15,9 @@ describe('StatefulSubject', () => {
 
         subject.complete()
         subject.unsubscribe()
-
-        done()
     })
 
-    it('can replay values as promise', async (done) => {
+    it('can replay values as promise', async () => {
         let subject = new StatefulSubject<number>(1)
 
         subject.next(5)
@@ -36,16 +34,14 @@ describe('StatefulSubject', () => {
 
         subject.complete()
         subject.unsubscribe()
-
-        done()
     })
 
-    it('can be run as typical subject', async (done) => {
+    it('can be run as typical subject', (done) => {
         let subject = new StatefulSubject<number>(1)
 
         subject.next(5)
 
-        let value = await subject.subscribe(value => {
+        subject.subscribe(value => {
             expect(value).toEqual(5)
             subject.complete()
             subject.unsubscribe()
@@ -53,7 +49,7 @@ describe('StatefulSubject', () => {
         })
     })
 
-    it('should be stoppable from streams', async (done) => {
+    it('should be stoppable from streams', () => {
         let subject = new StatefulSubject<number>()
         let stream = subject.asStream()
         let stream2 = subject.asStream()
@@ -64,7 +60,7 @@ describe('StatefulSubject', () => {
 
         let independentSub = stream2.subscribe(data => {})
 
-        stream.stop()
+        stream.complete()
 
         // stream should stop source subject but not close
         expect(subject.isStopped).toBeTruthy()
@@ -75,7 +71,5 @@ describe('StatefulSubject', () => {
         expect(sub2.closed).toBeTruthy()
         expect(sub3.closed).toBeTruthy()
         expect(independentSub.closed).toBeTruthy()
-
-        done()
     })
 })

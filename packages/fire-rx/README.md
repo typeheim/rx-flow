@@ -39,7 +39,7 @@ await subject // returns 5
 subject.next(6)
 await subject // returns 6
 
-subject.stop() // completes subject and unsubscribe all subscriptions
+subject.complete() // completes subject and unsubscribe all subscriptions
 ```
 [Read more about all custom observables...](docs/custom-observables.md)
 

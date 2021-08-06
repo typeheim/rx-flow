@@ -16,7 +16,7 @@ await subject // returns 5
 subject.next(6)
 await subject // returns 6
 
-subject.stop() // completes subject and unsubscribe all subscriptions
+subject.complete() // completes subject and unsubscribe all subscriptions
 ```
 
 ## StatefulStream
@@ -34,7 +34,7 @@ let data = await stream
 
 stream.subscribe(data => /.../)
 
-stream.stop() // completes producer and unsubscribe all subscriptions
+stream.complete() // completes producer and unsubscribe all subscriptions
 ```
 
 ## ValueSubject
@@ -52,7 +52,7 @@ await subject // returns 5
 subject.next(6)
 await subject // returns 6
 
-subject.stop() // completes subject and unsubscribe all subscriptions
+subject.complete() // completes subject and unsubscribe all subscriptions
 ```
 
 ## ReactivePromise

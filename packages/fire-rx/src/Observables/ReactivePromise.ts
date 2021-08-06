@@ -10,7 +10,6 @@ export class ReactivePromise<T> extends Observable<T> {
     protected value: T
     protected _resolved = false
 
-
     constructor(executor?: PromiseExecutor<T>) {
         super()
         this.source = this.internalSubject
@@ -49,14 +48,14 @@ export class ReactivePromise<T> extends Observable<T> {
         this.value = value
         this._resolved = true
         this.internalSubject.next(value)
-        this.internalSubject.stop()
+        this.internalSubject.complete()
     }
 
     reject(error?: any) {
         if (this.resolved) {
             throw PromiseResolvedException.withMessage('Promise already resolved')
         }
-        this.internalSubject.fail(error)
+        this.internalSubject.error(error)
     }
 
     resolveOn(resolveEventOrConfig: ResolveOnConfig<T> | Subscribable<any>) {
@@ -72,19 +71,6 @@ export class ReactivePromise<T> extends Observable<T> {
         resolveEvent.subscribe(() => {
             if (!this.resolved) {
                 this.resolve(resolveValue)
-            }
-        })
-
-        return this
-    }
-
-    /**
-     * @deprecated will be removed in next release
-     */
-    emitUntil(destroyEvent: Subscribable<any>) {
-        destroyEvent.subscribe(() => {
-            if (!this.resolved) {
-                this.internalSubject.stop()
             }
         })
 

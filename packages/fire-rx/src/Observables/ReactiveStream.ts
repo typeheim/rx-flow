@@ -1,6 +1,8 @@
-import { Observable } from 'rxjs'
+import {
+    Observable,
+    Subscribable,
+} from 'rxjs'
 import { Publisher } from '@typeheim/fire-rx'
-import { Subscribable } from '../Contracts/RxJsInternals'
 import { AsyncStream } from './AsyncStream'
 
 export class ReactiveStream<T> extends AsyncStream<T> implements Publisher<T> {
@@ -35,16 +37,30 @@ export class ReactiveStream<T> extends AsyncStream<T> implements Publisher<T> {
     }
 
     /**
-     * Completes producer and clean up resources
+     * @deprecated use {@link complete()} instead
      */
     stop(): void {
-        this.sourceSubject.stop()
+        this.complete()
+    }
+
+    /**
+     * Completes producer and clean up resources
+     */
+    complete(): void  {
+        this.sourceSubject.complete()
+    }
+
+    /**
+     * @deprecated use {@link error()} instead
+     */
+    fail(error: any): void {
+        this.error(error)
     }
 
     /**
      * Completes producer with error and unsubscribe all subscriptions
      */
-    fail(error: any): void {
-        this.sourceSubject.fail(error)
+    error(error: any): void  {
+        this.sourceSubject.error(error)
     }
 }

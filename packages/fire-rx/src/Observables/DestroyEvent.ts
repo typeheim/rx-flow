@@ -16,6 +16,6 @@ export class DestroyEvent extends Observable<boolean> {
     public emit() {
         this.internalSubject.next(true)
 
-        this.internalSubject.stop()
+        this.internalSubject.complete()
     }
 }

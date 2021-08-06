@@ -1,5 +1,6 @@
 import {
     BehaviorSubject,
+    Observable,
     Subscribable,
     Subscription,
 } from 'rxjs'
@@ -24,7 +25,8 @@ export class ValueSubject<T> extends BehaviorSubject<T> implements Publisher<T> 
     /**
      * @deprecated internal method
      */
-    _subscribe(subscriber) {
+    protected _subscribe(subscriber) {
+        // @ts-ignore
         let sub = super._subscribe(subscriber)
         this.hub.add(sub)
 
@@ -35,36 +37,56 @@ export class ValueSubject<T> extends BehaviorSubject<T> implements Publisher<T> 
      * Subscribe to an event to complete and unsubscribe as it
      * emits
      */
-    emitUntil(event: Subscribable<any>) {
+    emitUntil(event: Observable<any>) {
         event.subscribe(() => {
-            this.stop()
+            this.complete()
         })
 
         return this
     }
 
-    stop() {
+    /**
+     * @deprecated use {@link complete()} instead
+     */
+    stop(): void {
+        this.complete()
+    }
+
+    /**
+     * @deprecated use {@link error()} instead
+     */
+    fail(error: any): void {
+        this.error(error)
+    }
+
+    /**
+     * Completes subject and clean up resources
+     */
+    complete(): void {
         if (this.hasError) {
             // if subject was failed, further steps ain't necessary
             return
         }
         if (!this.isStopped) {
-            this.complete()
+            super.complete()
         }
-        this.hub.unsubscribe()
-        this.clearInternalPromise()
+        this.cleanupResources()
     }
 
     /**
      * Completes subject with error and unsubscribe all subscriptions
      */
-    fail(error) {
-        this.error(error)
-        this.hub.unsubscribe()
-
+    error(error): void {
         if (!this.closed) {
-            this.unsubscribe()
+            super.error(error)
         }
+
+        this.cleanupResources()
+    }
+
+    protected cleanupResources() {
+        this?.hub?.unsubscribe()
+        this.hub = null // in case if somehow subscriptions will be added
         this.clearInternalPromise()
     }
 

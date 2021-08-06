@@ -1,6 +1,6 @@
 {
   "name": "@typeheim/fire-rx",
-  "version": "0.0.8",
+  "version": "0.1.0",
   "description": "RxJS on steroids",
   "keywords": [
     "rx-flow",
@@ -27,6 +27,6 @@
   "main": "index.js",
   "types": "index.d.ts",
   "devDependencies": {
-    "rxjs": "^6.6.0"
+    "rxjs": "^7.2.0"
   }
 }

@@ -25,18 +25,16 @@ describe('*OnDestroy cleanup hooks', () => {
         expect(object.unsubscribableSubject.closed).toBeTruthy()
     }
 
-    it('add destructor if it\'s missing and cleanup resources', async (done) => {
+    it('add destructor if it\'s missing and cleanup resources',  () => {
         let withoutDestructorObj = new WithoutDestructor()
 
         // @ts-ignore
         withoutDestructorObj.ngOnDestroy()
 
         verifySubjectsAreStopped(withoutDestructorObj)
-
-        done()
     })
 
-    it('add destructor if it\'s missing and cleanup resources', async (done) => {
+    it('wrap original NG destructor and cleanup resources', () => {
         let withNgDestructorObj = new WithNgDestructor()
 
         // @ts-ignore
@@ -45,11 +43,9 @@ describe('*OnDestroy cleanup hooks', () => {
         expect(withNgDestructorObj.destroyed).toBeTruthy()
 
         verifySubjectsAreStopped(withNgDestructorObj)
-
-        done()
     })
 
-    it('add destructor if it\'s missing and cleanup resources', async (done) => {
+    it('wrap custom destructor and cleanup resources',  () => {
         let withCustomDestructorObj = new WithCustomDestructor()
 
         withCustomDestructorObj.myDestructor()
@@ -57,8 +53,6 @@ describe('*OnDestroy cleanup hooks', () => {
         expect(withCustomDestructorObj.destroyed).toBeTruthy()
 
         verifySubjectsAreStopped(withCustomDestructorObj)
-
-        done()
     })
 })
 

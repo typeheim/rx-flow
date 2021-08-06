@@ -1,4 +1,4 @@
-import { Observer } from '@typeheim/fire-rx'
+import { Observer } from 'rxjs'
 
 export interface StreamContext<T> {
     next: (value?: T) => void

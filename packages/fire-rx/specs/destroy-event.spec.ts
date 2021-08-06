@@ -7,7 +7,7 @@ import { ReplaySubject } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
 
 describe('DestroyEvent', () => {
-    it('can be used with takeUntil', async (done) => {
+    it('can be used with takeUntil',  () => {
         let destroyEvent = new DestroyEvent()
 
         let subject = new ReplaySubject(1)
@@ -21,11 +21,9 @@ describe('DestroyEvent', () => {
         expect(subject.isStopped).toEqual(false)
 
         subject.complete()
-
-        done()
     })
 
-    it('can be used with SubscriptionsHub', (done) => {
+    it('can be used with SubscriptionsHub', () => {
         let destroyEvent = new DestroyEvent()
         let hub = new SubscriptionsHub(destroyEvent)
         let subject = new ReplaySubject(1)
@@ -41,11 +39,9 @@ describe('DestroyEvent', () => {
         expect(hub.count).toEqual(0)
 
         subject.complete()
-
-        done()
     })
 
-    it('can be used with `until` method of StatefulSubject', (done) => {
+    it('can be used with `until` method of StatefulSubject', () => {
         let destroyEvent = new DestroyEvent()
 
         let subject = new StatefulSubject(1)
@@ -66,7 +62,5 @@ describe('DestroyEvent', () => {
         expect(sub1.closed).toEqual(true)
         expect(sub2.closed).toEqual(true)
         expect(sub3.closed).toEqual(true)
-
-        done()
     })
 })

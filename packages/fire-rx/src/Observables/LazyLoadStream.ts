@@ -13,11 +13,12 @@ export class LazyLoadStream<T> extends AsyncStream<T> {
     /**
      * @deprecated internal method
      */
-    _subscribe(subscriber) {
+    protected _subscribe(subscriber) {
         if (!this.isInitialized) {
             this.initDataSource()
         }
 
+        // @ts-ignore
         return super._subscribe(subscriber)
     }
 

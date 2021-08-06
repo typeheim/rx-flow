@@ -4,18 +4,21 @@ import {
 } from '..'
 
 describe('EmitOnDestroy', () => {
-    it('add destructor if it\'s missing and emit destroy event', async (done) => {
+    it('add destructor if it\'s missing and emit destroy event', () => {
         let withoutDestructorObj = new WithoutDestructor()
 
+        let destructorCalled = false
         withoutDestructorObj.destroyEvent.subscribe(() => {
-            done()
+            destructorCalled = true
         })
 
         // @ts-ignore
         withoutDestructorObj.ngOnDestroy()
+
+        expect(destructorCalled).toBeTruthy()
     })
 
-    it('wrap destructor to emit destroy event', async (done) => {
+    it('wrap destructor to emit destroy event', (done) => {
         let withDestructorObj = new WithDestructor()
 
         withDestructorObj.destroyEvent.subscribe(() => {
@@ -28,7 +31,7 @@ describe('EmitOnDestroy', () => {
         expect(withDestructorObj.destroyed).toBeTruthy()
     })
 
-    it('wrap custom destructor to emit destroy event', async (done) => {
+    it('wrap custom destructor to emit destroy event', (done) => {
         let withDestructorObj = new WithCustomDestructor()
 
         withDestructorObj.destroyEvent.subscribe(() => {

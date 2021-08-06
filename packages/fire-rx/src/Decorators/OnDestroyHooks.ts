@@ -1,4 +1,9 @@
 /**
+ * Internal metadata storage for decorators
+ */
+const DestructorDecoratorsMetadataMap = new WeakMap<any, DestructorDecoratorsMetadata>()
+
+/**
  * Emit DestroyEvent when destructor specified at metadata param is triggered.
  * By default Angular "ngOnDestroy" destructor is used.
  */
@@ -9,30 +14,17 @@ export function EmitOnDestroy(metadata?: DestroyHookMetadata): PropertyDecorator
         }
     }
 
-    return (target: Object, propertyKey: string | symbol) => {
-        if (!target.hasOwnProperty(metadata.destroyHook)) {
-            target[metadata.destroyHook] = function() {}
-        }
-
-        const originalOnDestroy = target[metadata.destroyHook]
-        target[metadata.destroyHook] = function(...args): void {
-            try {
-                this[propertyKey].emit()
-            } catch (error) {
-                console.log(`@EmitOnDestroy[ERROR]`, error)
-            }
-
-            return originalOnDestroy.apply(this, args)
-        }
-    }
+    return attachDestroyHook(metadata, 'emit')
 }
 
 /**
  * Stop subjects or streams when destructor specified at metadata param is triggered.
  * By default Angular "ngOnDestroy" destructor is used.
+ *
+ * @deprecated please use {@link CompleteOnDestroy} instead
  */
 export function StopOnDestroy(metadata?: DestroyHookMetadata): PropertyDecorator {
-    return attachDestroyHook(metadata, 'stop')
+    return attachDestroyHook(metadata, 'complete')
 }
 
 /**
@@ -59,42 +51,75 @@ function attachDestroyHook(metadata, destroyType) {
 
     return (target: Object, propertyKey: string | symbol) => {
         const hookName = config.destroyHook
-        const queueProperty = `__fireRxQueue`
 
-        if (!target.hasOwnProperty(queueProperty)) {
-            target[queueProperty] = {}
-            target[queueProperty][config.type] = []
-        } else if (!target[queueProperty][config.type]) {
-            target[queueProperty][config.type] = []
+        let destroyQueue: DestructorDecoratorsMetadata
+        let decoratorIsWrapped = true
+        if (!DestructorDecoratorsMetadataMap.has(target.constructor)) {
+            DestructorDecoratorsMetadataMap.set(target.constructor, {
+                stop: [],
+                complete: [],
+                unsubscribe: [],
+                emit: [],
+            })
+            decoratorIsWrapped = false
         }
-        if (!target.hasOwnProperty(hookName)) {
-            target[hookName] = function() {}
-        }
-        target[queueProperty][config.type].push(propertyKey)
 
-        // prevent wrapping destructor several times
-        const patchFlag = `__hookPatchedByFireRx`
-        if (target[hookName][patchFlag]) {
+        destroyQueue = DestructorDecoratorsMetadataMap.get(target.constructor)
+        // push property to destroy queue if it wasn't before
+        if (!destroyQueue[destroyType].includes(propertyKey)) {
+            destroyQueue[destroyType].push(propertyKey)
+        }
+
+        if (decoratorIsWrapped) {
+            // prevent wrapping decorator multiple times
             return
         }
 
-        const originalOnDestroy = target[hookName]
-        target[hookName] = function(...args): void {
-            try {
-                for (let queueType in this[queueProperty]) {
-                    this[queueProperty][queueType].forEach(name => {
-                        this[name][queueType]()
+        if (!target.hasOwnProperty(hookName)) {
+            Object.defineProperty(target.constructor.prototype, hookName, {
+                value: function() {},
+                configurable: true,
+                writable: true,
+            })
+        }
+
+        const originalDestructor = target.constructor.prototype[hookName]
+        const newDestructorDescriptor = {
+            value: function(...args: any[]) {
+                originalDestructor ? originalDestructor.apply(this, args) : null
+                const hooksMetadata = DestructorDecoratorsMetadataMap.get(this.constructor)
+
+                for (let destroyType in hooksMetadata) {
+
+                    hooksMetadata[destroyType]?.forEach(property => {
+                        try {
+                            if (this?.[property]?.[destroyType]) {
+                                this[property][destroyType]()
+                            }
+                        } catch (error) {
+                            let capitalizedType = config.type.charAt(0).toUpperCase() + config.type.slice(1)
+                            console.log(`Error at ${capitalizedType}OnDestroy:`, error)
+                        }
                     })
                 }
-            } catch (error) {
-                let capitalizedType = config.type.charAt(0).toUpperCase() + config.type.slice(1)
-                console.log(`Error at ${capitalizedType}OnDestroy:`, error)
-            }
 
-            return originalOnDestroy.apply(this, args)
+            },
+            configurable: true,
+            writeable: true,
         }
-        target[hookName][patchFlag] = true
+
+        // Deleting old destructor and injecting wrapped one
+        delete target.constructor.prototype[hookName]
+        Object.defineProperty(target.constructor.prototype, hookName, newDestructorDescriptor)
     }
+}
+
+
+interface DestructorDecoratorsMetadata {
+    stop: [],
+    complete: [],
+    unsubscribe: [],
+    emit: [],
 }
 
 export interface DestroyHookMetadata {

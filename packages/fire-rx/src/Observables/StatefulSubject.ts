@@ -2,9 +2,9 @@ import {
     SchedulerLike,
     ReplaySubject,
     Subscription,
+    Subscribable,
 } from 'rxjs'
 import { Publisher } from '../Contracts/Observables'
-import { Subscribable } from '../Contracts/RxJsInternals'
 import { ReactiveStream } from './ReactiveStream'
 
 export class StatefulSubject<T> extends ReplaySubject<T> implements Publisher<T> {
@@ -29,7 +29,8 @@ export class StatefulSubject<T> extends ReplaySubject<T> implements Publisher<T>
     /**
      * @deprecated internal method
      */
-    _subscribe(subscriber) {
+    protected _subscribe(subscriber) {
+        //@ts-ignore
         let sub = super._subscribe(subscriber)
         this.hub.add(sub)
 
@@ -41,8 +42,8 @@ export class StatefulSubject<T> extends ReplaySubject<T> implements Publisher<T>
      * emits
      */
     emitUntil(event: Subscribable<any>): this {
-        event.subscribe(() => {
-            this.stop()
+        event.subscribe({
+            next: () => this.complete()
         })
 
         return this
@@ -56,26 +57,48 @@ export class StatefulSubject<T> extends ReplaySubject<T> implements Publisher<T>
     }
 
     /**
-     * Completes subject and clean up resources
+     * @deprecated use {@link complete()} instead
      */
     stop(): void {
+        this.complete()
+    }
+
+    /**
+     * @deprecated use {@link error()} instead
+     */
+    fail(error: any): void {
+        this.error(error)
+    }
+
+    /**
+     * Completes subject and clean up resources
+     */
+    complete(): void {
         if (this.hasError) {
             // if subject was failed, further steps ain't necessary
             return
         }
         if (!this.isStopped) {
-            this.complete()
+            super.complete()
         }
-        this.hub.unsubscribe()
-        this.clearInternalPromise()
+        this.cleanupResources()
     }
 
     /**
      * Completes subject with error and unsubscribe all subscriptions
      */
-    fail(error): void {
-        this.error(error)
-        this.hub.unsubscribe()
+    error(error): void {
+        if (!this.closed) {
+            super.error(error)
+        }
+
+        this.cleanupResources()
+    }
+
+    protected cleanupResources() {
+        this?.hub?.unsubscribe()
+        this.hub = null // in case if somehow subscriptions will be added
+        this.clearInternalPromise()
     }
 
     //

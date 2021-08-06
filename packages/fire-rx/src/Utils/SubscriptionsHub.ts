@@ -1,8 +1,8 @@
-import {
-    Unsubscribable,
-    TeardownLogic,
-} from '../Contracts/RxJsInternals'
 import { DestroyEvent } from '../Observables/DestroyEvent'
+import {
+    TeardownLogic,
+    Unsubscribable,
+} from 'rxjs'
 
 /**
  * @deprecated will be removed in next release
