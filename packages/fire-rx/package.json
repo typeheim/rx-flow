@@ -1,6 +1,6 @@
 {
   "name": "@typeheim/fire-rx",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "RxJS on steroids",
   "keywords": [
     "rx-flow",
@@ -26,7 +26,10 @@
   "license": "MIT",
   "main": "index.js",
   "types": "index.d.ts",
+  "peerDependenciesMeta": {
+    "rxjs": "^7.5.0"
+  },
   "devDependencies": {
-    "rxjs": "^7.2.0"
+    "rxjs": "^7.5.0"
   }
 }
